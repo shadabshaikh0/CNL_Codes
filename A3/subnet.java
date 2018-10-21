@@ -2,214 +2,196 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
-public class subnet {
-	Scanner sc = new Scanner(System.in);
-	String ip;
-	int baseIPnumeric;
-	int netmaskNumeric;
+class subnet {
+    Scanner input = new Scanner(System.in);
 
-	static String appendZeroes(String s) {
-		String temp = new String("00000000");
-		return temp.substring(s.length()) + s;
-	}
+    static String appendzeroes(String parameterstring) {
+        String temporarystring = new String("00000000");
+        return temporarystring.substring(parameterstring.length()) + parameterstring;
+    }
 
-	void subnetmask() throws Exception {
-		DataInputStream dis = new DataInputStream(System.in);
-		System.out.println("Enter IP Address (eg: 192.168.1.1)");
-		String ipAddr = dis.readLine();
-		String[] ipAddrParts = ipAddr.split("\\.");
-		String mask = "";
-		int firstoctet = Integer.parseInt(ipAddrParts[0]);
-		if (firstoctet <= 127) {
-			mask = "255.0.0.0";
-			System.out.println("\nThis address is Class A IP Address");
-			System.out.println("The Default Subnet mask is: " + mask);
-		} else if (firstoctet >= 128 && firstoctet <= 191) {
-			mask = "255.255.0.0";
-			System.out.println("This address is Class B IP Address");
-			System.out.println("The Default Subnet mask is: " + mask);
-		} else if (firstoctet >= 192 && firstoctet <= 223) {
-			mask = "255.255.255.0";
-			System.out.println("This address is Class C IP Address");
-			System.out.println("The Default Subnet mask is: " + mask);
-		} else if (firstoctet >= 224 && firstoctet <= 239) {
-			mask = "255.0.0.0";
-			System.out.println("This address is Class D IP Address; Used for multicasting");
-		} else if (firstoctet >= 240 && firstoctet <= 254) {
-			mask = "255.0.0.0";
-			System.out.println("Class E IP Address; Experimental Use");
-		}
+    void subnetmask() throws Exception {
+        System.out.println("Enter IP address Ex.(192.168.1.0)");
+        String ipaddress = input.next();
 
-		System.out.println("\n-----------------------------------------------------");
+        String split_ip[] = ipaddress.split("\\.");
+        String binaryipaddress = "";
+        String temporarybinaryipaddress = "";
 
-		String split_ip[] = ipAddr.split("\\.");
-		String split_bip[] = new String[4];
-		String bip = "";
+        // converting IP to Binary
+        String binary_split_ip[] = new String[4];
+        for (int i = 0; i < 4; i++) {
+            binary_split_ip[i] = appendzeroes(Integer.toBinaryString(Integer.parseInt(split_ip[i])));
+            temporarybinaryipaddress = temporarybinaryipaddress + binary_split_ip[i] + ".";
+            binaryipaddress += binary_split_ip[i];
+        }
 
-		for (int i = 0; i < 4; i++) {
-			split_bip[i] = appendZeroes(Integer.toBinaryString(Integer.parseInt(split_ip[i])));
-			bip += split_bip[i];
-		}
+        System.out.println("IP ADDRESS (Binary Form): " + temporarybinaryipaddress);
 
-		System.out.println("\nThe binary IpAddress is:" + bip);
-		System.out.println("\n-----------------------------------------------------");
-		System.out.println("\nHow many address you want in each subnet:");
-		int n = sc.nextInt();
-		System.out.println("--------------------------------------");
-		int bits = (int) Math.ceil(Math.log(n) / Math.log(2));
-		System.out.println("\nNumber of bit=" + bits);
+        System.out.println("Enter No of address you want in each subnet");
+        int noofaddress = input.nextInt();
 
-		int mask1 = 32 - bits;
-		int total_address = (int) Math.pow(2, bits);
-		System.out.println("Calculated Subnet mask address is : " + mask1);
+        int bits = (int) Math.ceil(Math.log(noofaddress) / Math.log(2));
+        System.out.println("Number of bits : " + bits);
 
-		int addr = 0;
-		for (int i = bits; i <= 7; i++) {
-			addr = addr + (int) Math.pow(2, i);
-		}
+        int noofmaskbits = 32 - bits;
+        int noofaddresses_subnet = (int) Math.pow(2, bits);
 
-		System.out.println("\nSubnet mask:" + (int) addr);
+        System.out.println("Number of mask bits : " + noofmaskbits);
 
-		int total_add = (int) Math.pow(2, bits);
-		if (mask1 >= 0 && mask1 <= 8) {
-			System.out.println("Subnet mask is= " + addr + "0.0.0");
-		} else if (mask1 > 8 && mask1 <= 16) {
-			System.out.println("Subnet mask is= 255." + addr + ".0.0");
+        int answer_from_modby8 = noofmaskbits % 8;
 
-		} else if (mask1 > 16 && mask1 <= 24) {
-			System.out.println("Subnet mask is= 255.255" + addr + ".0");
-		} else if (mask1 > 24 && mask1 <= 32) {
-			System.out.println("Subnet mask is= 255.255.255." + addr);
-		}
+        int address = 0;
+        for (int i = 0, m = 7; i < answer_from_modby8; i++, m--) {
+            address = address + (int) Math.pow(2, m);
+        }
 
-		// ---- Finding the first and last address----
-		int fbip[] = new int[32];
+        // Default Subnet Mask
+        if (noofmaskbits >= 0 && noofmaskbits <= 8) {
+            System.out.println("Subnet mask : = " + address + "0.0.0");
+        } else if (noofmaskbits >= 8 && noofmaskbits <= 16) {
+            System.out.println("Subnet mask : = 255." + address + ".0.0");
+        } else if (noofmaskbits >= 16 && noofmaskbits <= 24) {
+            System.out.println("Subnet mask : = 255.255." + address + ".0");
+            // First Address Calculation
+            int firstbinaryipaddress[] = new int[32];
+            for (int i = 0; i < 32; i++) {
+                firstbinaryipaddress[i] = binaryipaddress.charAt(i) - 48;
+            }
 
-		for (int i = 0; i < 32; i++) {
-			fbip[i] = (int) bip.charAt(i) - 48;
-		}
+            for (int i = 31; i > 31 - bits; i--) {
+                firstbinaryipaddress[i] &= 0;
+            }
 
-		for (int i = 31; i > 31 - bits; i--) {
-			// Get first address by anding the last bits with 0
-			fbip[i] &= 0;
-		}
+            String firstipaddress[] = { "", "", "", "" };
+            for (int i = 0; i < 32; i++) {
+                firstipaddress[i / 8] = new String(firstipaddress[i / 8] + firstbinaryipaddress[i]);
+            }
 
-		String fip[] = { "", "", "", "" };
-		for (int i = 0; i < 32; i++) {
-			fip[i / 8] = new String(fip[i / 8] + fbip[i]);
-		}
+            int IPADDRESSFIRST[] = new int[4];
+            System.out.print("Group 1 : \n First Address :");
+            for (int i = 0; i < 4; i++) {
+                if (i == 3) {
+                    System.out.print(IPADDRESSFIRST[i] = 0);
+                } else {
+                    System.out.print(IPADDRESSFIRST[i] = Integer.parseInt(firstipaddress[i], 2));
+                }
+                if (i != 3)
+                    System.out.print(".");
+            }
+            System.out.println();
+            // Last Address Calculation
+            int lastbinaryipaddress[] = new int[32];
+            for (int i = 0; i < 32; i++) {
+                lastbinaryipaddress[i] = binaryipaddress.charAt(i) - 48;
+            }
 
-		int first_offset = 0;
-		int ipAddr1[] = new int[4];
-		System.out.println("------------------------------------");
-		System.out.println("Group 1 \nThe First Address is:");
-		for (int i = 0; i < 4; i++) {
-			System.out.print(ipAddr1[i] = first_offset = Integer.parseInt(fip[i], 2));
-			if (i != 3)
-				System.out.print(".");
-		}
-		System.out.println();
+            for (int i = 31; i > 31 - bits; i--) {
+                lastbinaryipaddress[i] |= 1;
+            }
 
-		// --- Last address Calculation----
-		int lbip[] = new int[32];
+            String lastipaddress[] = { "", "", "", "" };
+            for (int i = 0; i < 32; i++) {
+                lastipaddress[i / 8] = new String(lastipaddress[i / 8] + lastbinaryipaddress[i]);
+            }
 
-		for (int i = 0; i < 32; i++) {
-			// Convert the character 1,0 to integer 1,0
-			lbip[i] = (int) bip.charAt(i) - 48;
-		}
+            int IPADDRESSLAST[] = new int[4];
+            System.out.print("\n Last Address :");
+            for (int i = 0; i < 4; i++) {
+                System.out.print(IPADDRESSLAST[i] = Integer.parseInt(lastipaddress[i], 2));
+                if (i != 3)
+                    System.out.print(".");
+            }
+            System.out.println();
+            
+        } else if (noofmaskbits >= 24 && noofmaskbits <= 32) {
+            System.out.println("Subnet mask : = 255.255.255." + address);
 
-		for (int i = 31; i > 31 - bits; i--) {
-			// Get last address by oring with last bits with 1
-			lbip[i] |= 1;
-		}
+            System.out.println("------------------------------------------");
 
-		String lip[] = { "", "", "", "" };
-		for (int i = 0; i < 32; i++) {
-			lip[i / 8] = new String(lip[i / 8] + lbip[i]);
-		}
-		
-		int ipLast[] = new int[4];
-		System.out.println("\nThe Last Address is:");
-		for (int i = 0; i < 4; i++) {
-			System.out.print(ipLast[i] = Integer.parseInt(lip[i], 2));
-			if (i != 3)
-				System.out.print(".");
-		}
+            // First Address Calculation
+            int firstbinaryipaddress[] = new int[32];
+            for (int i = 0; i < 32; i++) {
+                firstbinaryipaddress[i] = binaryipaddress.charAt(i) - 48;
+            }
 
-		System.out.println("\n_____________________________________");
-		System.out.println();
-		int scount = (int) Math.pow(2, bits);
-		int n1 = 256 / scount;
+            for (int i = 31; i > 31 - bits; i--) {
+                firstbinaryipaddress[i] &= 0;
+            }
 
-		for (int j = 1; j < n1; j++) {
-			System.out.println(" GROUP: " + (j + 1) + "\n\n FIRST ADDRESS:");
-			for (int i = 0; i < 4; i++) {
-				if (i < 3) {
-					System.out.print(ipAddr1[i] + ".");
-				} else
-					System.out.println(ipAddr1[i] = ipAddr1[i] + total_address);
-			}
-			System.out.println("\n LAST ADDRESS:");
-			for (int i = 0; i < 4; i++) {
-				if (i < 3) {
-					System.out.print(ipLast[i] + ".");
-				} else
-					System.out.println(ipLast[i] = ipLast[i] + total_address);
+            String firstipaddress[] = { "", "", "", "" };
+            for (int i = 0; i < 32; i++) {
+                firstipaddress[i / 8] = new String(firstipaddress[i / 8] + firstbinaryipaddress[i]);
+            }
 
-			}
-			System.out.println("\n_____________________________________");
-		}
+            int IPADDRESSFIRST[] = new int[4];
+            System.out.print("Group 1 : \n First Address :");
+            for (int i = 0; i < 4; i++) {
+                if (i == 3) {
+                    System.out.print(IPADDRESSFIRST[i] = 0);
+                } else {
+                    System.out.print(IPADDRESSFIRST[i] = Integer.parseInt(firstipaddress[i], 2));
+                }
+                if (i != 3)
+                    System.out.print(".");
+            }
+            System.out.println();
+            // Last Address Calculation
+            int lastbinaryipaddress[] = new int[32];
+            for (int i = 0; i < 32; i++) {
+                lastbinaryipaddress[i] = binaryipaddress.charAt(i) - 48;
+            }
 
-	}
+            for (int i = 31; i > 31 - bits; i--) {
+                lastbinaryipaddress[i] |= 1;
+            }
 
-	public static void main(String args[]) throws Exception {
-		Scanner sc = new Scanner(System.in);
-		subnet s = new subnet();
+            String lastipaddress[] = { "", "", "", "" };
+            for (int i = 0; i < 32; i++) {
+                lastipaddress[i / 8] = new String(lastipaddress[i / 8] + lastbinaryipaddress[i]);
+            }
 
-		int ch;
-		do {
-			System.out.println("\n-----------Menu------------\n");
-			System.out.println("1.Calculate the subnet mask");
-			System.out.println("2.Ping");
-			System.out.println("3.Exit");
-			System.out.println("Enter your choice:");
-			ch = sc.nextInt();
-			switch (ch) {
-			case 1:
-				s.subnetmask();
-				break;
+            int IPADDRESSLAST[] = new int[4];
+            System.out.print("\n Last Address :");
+            for (int i = 0; i < 4; i++) {
+                if (i == 3) {
+                    System.out.print(IPADDRESSLAST[i] = IPADDRESSFIRST[i] + noofaddresses_subnet - 1);
+                } else {
+                    System.out.print(IPADDRESSLAST[i] = Integer.parseInt(lastipaddress[i], 2));
+                }
+                if (i != 3)
+                    System.out.print(".");
+            }
+            System.out.println();
+            System.out.println("------------------------------------------");
 
-			case 2: {
-				String adr;
-				try {
-					System.out.println("Enter the IP address to ping:");
-					adr = sc.nextLine();
-					adr = sc.nextLine();
-					Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 5 " + adr);
-					BufferedReader reader = new BufferedReader(new InputStreamReader(p1.getInputStream()));
-					String line = "";
-					while ((line = reader.readLine()) != null) {
-						System.out.println(line);
-					}
-					int returnVal = p1.waitFor();
-					if (returnVal == 0)
-						System.out.println("\n\nHost Reachable!");
-					else if (returnVal == 2)
-						System.out.println("Host Unreachable!");
-					else if (returnVal == 256)
-						System.out.println("Host is Shutdown!");
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+            int numberofsubnets = 256 / noofaddresses_subnet;
 
-			}
-				break;
-			case 3:
-				System.out.println("\nTank you.....!");
+            for (int j = 1; j < numberofsubnets; j++) {
 
-			}
+                System.out.print("Group " + (j + 1) + ": \n First Address :");
+                for (int i = 0; i < 4; i++) {
+                    if (i < 3)
+                        System.out.print(IPADDRESSFIRST[i] + ".");
+                    else
+                        System.out.println(IPADDRESSFIRST[i] += noofaddresses_subnet);
+                }
 
-		} while (ch != 3);
-	}
+                System.out.print(" \n Last Address :");
+                for (int i = 0; i < 4; i++) {
+                    if (i < 3)
+                        System.out.print(IPADDRESSLAST[i] + ".");
+                    else
+                        System.out.println(IPADDRESSLAST[i] += noofaddresses_subnet);
+                }
 
+            }
+        }
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        subnet sub = new subnet();
+        sub.subnetmask();
+    }
 }
