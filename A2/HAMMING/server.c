@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     bzero(buffer, 256);
     read(connsd, buffer, 255);
 
-    printf("\nMessage from the client : \t");
+    printf("\nMessage from the client : ");
     for (int j = 0; j < 11; j++)
         printf("%d", buffer[j]);
 
