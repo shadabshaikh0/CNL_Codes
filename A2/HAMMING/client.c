@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
         struct sockaddr_in serversocket;
         int listensocket, i, connsd, size;
 
-        int data[20], ackData[20];
+        int data[20] = {0} , ackData[20] = {0};
         int dataatrec[10], c, c1, c2, c3;
 
         if (argc < 3)
